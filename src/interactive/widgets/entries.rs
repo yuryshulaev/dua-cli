@@ -11,7 +11,7 @@ use tui::{
     layout::Rect,
     style::{Color, Modifier, Style},
     text::Span,
-    widgets::{Block, Borders},
+    widgets::{Block},
 };
 use tui_react::util::rect::line_bound;
 use tui_react::{
@@ -27,7 +27,6 @@ pub struct EntriesProps<'a> {
     pub selected: Option<TreeIndex>,
     pub entries: &'a [EntryDataBundle],
     pub marked: Option<&'a EntryMarkMap>,
-    pub border_style: Style,
     pub is_focussed: bool,
 }
 
@@ -50,16 +49,9 @@ impl Entries {
             entries,
             selected,
             marked,
-            border_style,
             is_focussed,
         } = props.borrow();
         let list = &mut self.list;
-
-        let is_top = |node_idx| {
-            tree.neighbors_directed(node_idx, petgraph::Incoming)
-                .next()
-                .is_none()
-        };
 
         let total: u128 = entries.iter().map(|b| b.data.size).sum();
         let title = match path_of(tree, *root).to_string_lossy().to_string() {
@@ -78,10 +70,7 @@ impl Entries {
                 _ => "s",
             }
         );
-        let block = Block::default()
-            .title(title.as_str())
-            .border_style(*border_style)
-            .borders(Borders::ALL);
+        let block = Block::default().title(title.as_str());
         let entry_in_view = selected.map(|selected| {
             entries
                 .iter()
@@ -110,9 +99,6 @@ impl Entries {
                 if is_selected {
                     style.add_modifier.insert(Modifier::REVERSED);
                 }
-                if *is_focussed & is_selected {
-                    style.add_modifier.insert(Modifier::BOLD);
-                }
 
                 let bytes = Span::styled(
                     format!(
@@ -120,32 +106,24 @@ impl Entries {
                         display.byte_format.display(w.size).to_string(), // we would have to impl alignment/padding ourselves otherwise...
                         byte_column_width = display.byte_format.width()
                     ),
-                    Style {
-                        fg: Color::Green.into(),
-                        ..style
-                    },
+                    style,
                 );
                 let fraction = w.size as f32 / total as f32;
-                let should_avoid_showing_a_big_reversed_bar = fraction > 0.9;
-                let local_style = if should_avoid_showing_a_big_reversed_bar {
-                    style.remove_modifier(Modifier::REVERSED)
-                } else {
-                    style
-                };
 
-                let left_bar = Span::styled(" |", local_style);
+                let left_bar = Span::styled(" ", style);
                 let percentage = Span::styled(
                     format!("{}", display.byte_vis.display(fraction)),
-                    local_style,
+                    style,
                 );
-                let right_bar = Span::styled("| ", local_style);
+                let right_bar = Span::styled(" ", style);
+                let path = w.name.to_string_lossy();
 
                 let name = Span::styled(
                     fill_background_to_right(
                         format!(
                             "{prefix}{}",
-                            w.name.to_string_lossy(),
-                            prefix = if *is_dir && !is_top(*root) { "/" } else { " " }
+                            path,
+                            prefix = if *is_dir { if !path.starts_with("/") { "/" } else { "" } } else { " " }
                         ),
                         area.width,
                     ),

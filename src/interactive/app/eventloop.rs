@@ -232,7 +232,7 @@ impl TerminalApp {
         terminal.hide_cursor()?;
         terminal.clear()?;
         let mut display: DisplayOptions = options.clone().into();
-        display.byte_vis = ByteVisualization::PercentageAndBar;
+        display.byte_vis = ByteVisualization::Bar;
         let mut window = MainWindow::default();
         let keys_rx = match mode {
             Interaction::None => {
@@ -252,6 +252,7 @@ impl TerminalApp {
 
         let mut state = None::<AppState>;
         let mut received_events = false;
+        let input_paths_len = input_paths.len();
         let traversal = Traversal::from_walk(options, input_paths, |traversal| {
             let s = match state.as_mut() {
                 Some(s) => {
@@ -326,6 +327,11 @@ impl TerminalApp {
                 traversal,
                 window,
             };
+
+            if input_paths_len == 1 {
+                app.state.enter_node_with_traversal(&app.traversal);
+            }
+
             app.refresh_view(terminal);
             app
         })))

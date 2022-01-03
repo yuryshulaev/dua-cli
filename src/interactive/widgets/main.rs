@@ -10,11 +10,12 @@ use std::borrow::Borrow;
 use tui::{
     buffer::Buffer,
     layout::{Constraint, Direction, Layout, Rect},
-    style::Modifier,
-    style::{Color, Style},
+    style::{Color, Style, Modifier},
+    widgets::{Paragraph},
 };
 use Constraint::*;
 use FocussedPane::*;
+use tui::widgets::Widget;
 
 pub struct MainWindowProps<'a> {
     pub traversal: &'a Traversal,
@@ -48,7 +49,7 @@ impl MainWindow {
             state,
         } = props.borrow();
 
-        let (entries_style, help_style, mark_style) = {
+        let (help_style, mark_style) = {
             let grey = Style {
                 fg: Color::DarkGray.into(),
                 bg: Color::Reset.into(),
@@ -56,14 +57,14 @@ impl MainWindow {
                 ..Style::default()
             };
             let bold = Style {
-                fg: Color::Rgb(230, 230, 230).into(),
-                add_modifier: Modifier::BOLD,
+                fg: Color::Reset.into(),
                 ..grey
             };
+
             match state.focussed {
-                Main => (bold, grey, grey),
-                Help => (grey, bold, grey),
-                Mark => (grey, grey, bold),
+                Main => (grey, grey),
+                Help => (bold, grey),
+                Mark => (grey, bold),
             }
         };
 
@@ -79,7 +80,7 @@ impl MainWindow {
             let bg_color = match (marked.map_or(true, |m| m.is_empty()), state.focussed) {
                 (false, FocussedPane::Mark) => Color::LightRed,
                 (false, _) => COLOR_MARKED,
-                (_, _) => Color::White,
+                (_, _) => Color::Reset.into(),
             };
             Header.render(bg_color, header_area, buf);
         }
@@ -131,10 +132,14 @@ impl MainWindow {
             entries: &state.entries,
             marked,
             selected: state.selected,
-            border_style: entries_style,
             is_focussed: matches!(state.focussed, Main),
         };
-        self.entries_pane.render(props, entries_area, buf);
+
+        if !state.is_scanning {
+            self.entries_pane.render(props, entries_area, buf);
+        } else {
+            Paragraph::new("\n   Scanning...").render(entries_area, buf);
+        }
 
         Footer.render(
             FooterProps {

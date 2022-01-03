@@ -48,7 +48,7 @@ impl fmt::Display for DisplayByteVisualization {
         } else {
             *percentage
         };
-        const BAR_SIZE: usize = 10;
+        const BAR_SIZE: usize = 25;
         match format {
             Percentage => Self::make_percentage(f, percentage),
             PercentageAndBar => {
@@ -66,23 +66,14 @@ impl DisplayByteVisualization {
     fn make_bar(f: &mut fmt::Formatter, percentage: f32, length: usize) -> Result<(), fmt::Error> {
         // Print the filled part of the bar
         let block_length = (length as f32 * percentage).floor() as usize;
+        f.write_str("[")?;
         for _ in 0..block_length {
-            f.write_str(tui::symbols::block::FULL)?;
+            f.write_str("#")?;
         }
 
         // Bar is done if full length is already used, continue working if not
         if block_length < length {
-            let block_sections = [
-                " ",
-                tui::symbols::block::ONE_EIGHTH,
-                tui::symbols::block::ONE_QUARTER,
-                tui::symbols::block::THREE_EIGHTHS,
-                tui::symbols::block::HALF,
-                tui::symbols::block::FIVE_EIGHTHS,
-                tui::symbols::block::THREE_QUARTERS,
-                tui::symbols::block::SEVEN_EIGHTHS,
-                tui::symbols::block::FULL,
-            ];
+            let block_sections = [" "," "," "," ","#","#","#","#","#"];
             // Get the index based on how filled the remaining part is
             let index =
                 (((length as f32 * percentage) - block_length as f32) * 8f32).round() as usize;
@@ -93,6 +84,7 @@ impl DisplayByteVisualization {
                 f.write_str(" ")?;
             }
         }
+        f.write_str("]")?;
         Ok(())
     }
     fn make_percentage(f: &mut fmt::Formatter, percentage: f32) -> Result<(), fmt::Error> {

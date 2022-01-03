@@ -10,7 +10,7 @@ license = "MIT"
 include = ["src/**/*", "Cargo.*", "LICENSE", "README.md", "CHANGELOG.md", "!**/tests/*"]
 
 [features]
-default = ["tui-crossplatform", "trash-move", "aggregate-scan-progress"]
+default = ["tui-crossplatform", "trash-move"]
 tui-unix = ["crosstermion/tui-react-termion", "tui-shared"]
 tui-crossplatform = ["crosstermion/tui-react-crossterm", "tui-shared"]
 

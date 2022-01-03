@@ -118,9 +118,9 @@ impl HelpPane {
                     None,
                 );
                 hotkey("<Backspace>", "^", None);
-                hotkey("Ctrl + d", "move down 10 entries at once", None);
+                hotkey("Ctrl + d", "move down 40 entries at once", None);
                 hotkey("<Page Down>", "^", None);
-                hotkey("Ctrl + u", "move up 10 entries at once", None);
+                hotkey("Ctrl + u", "move up 40 entries at once", None);
                 hotkey("<Page Up>", "^", None);
                 hotkey("H/<Home>", "Move to the top of the entries list", None);
                 hotkey("G/<End>", "Move to the bottom of the entries list", None);

@@ -147,12 +147,8 @@ pub fn aggregate(
     Ok((res, stats))
 }
 
-fn path_color_of(path: impl AsRef<Path>) -> Option<Color> {
-    if path.as_ref().is_file() {
-        None
-    } else {
-        Some(Color::Cyan)
-    }
+fn path_color_of(_path: impl AsRef<Path>) -> Option<Color> {
+    None
 }
 
 fn output_colored_path(
@@ -170,8 +166,7 @@ fn output_colored_path(
             .byte_format
             .display(num_bytes)
             .to_string()
-            .as_str()
-            .green(),
+            .as_str(),
         {
             let path = path.as_ref().display().to_string();
             match path_color {

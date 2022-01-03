@@ -41,8 +41,8 @@ impl CursorDirection {
             ToBottom => usize::MAX,
             Down => n.saturating_add(1),
             Up => n.saturating_sub(1),
-            PageDown => n.saturating_add(10),
-            PageUp => n.saturating_sub(10),
+            PageDown => n.saturating_add(40),
+            PageUp => n.saturating_sub(40),
         }
     }
 }
